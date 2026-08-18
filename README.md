@@ -149,7 +149,7 @@ Chúng tôi luôn **nhiệt liệt hoan nghênh và chào đón mọi ý tưởn
 
 ## 📜 BẢN QUYỀN & GIẤY PHÉP (LICENSE)
 
-* **Tác giả**: Phát triển và thiết kế bởi **ADAM ECOSYSTEM**.
+* **Tác giả**: Phát triển và thiết kế bởi **Adam Wang**.
 * **Giấy phép**: Được phân phối theo giấy phép quốc tế **[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](LICENSE)**.
 * 🚫 **NGHIÊM CẤM THƯƠNG MẠI HÓA (NON-COMMERCIAL)**:
   * Tuyệt đối **không được phép bán lại**, đóng gói thương mại, thu phí người chơi hoặc chèn quảng cáo kiếm tiền dưới mọi hình thức.
