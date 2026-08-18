@@ -708,9 +708,20 @@ function addSteps(model, keys, charIndex) {
     const si = model.target.length;
     model.target += k;
     model.stepMap.push(charIndex);
+    model.toneTargets.push(null);
+    model.toneNames.push(null);
     if (model.charStart[charIndex] < 0) model.charStart[charIndex] = si;
     model.charEnd[charIndex] = si;
   }
+}
+
+function addToneStep(model, toneKey, wordLastCharIndex, toneCharIndex, tName) {
+  const si = model.target.length;
+  model.target += toneKey;
+  model.stepMap.push(wordLastCharIndex);
+  model.toneTargets.push(toneCharIndex);
+  model.toneNames.push(tName);
+  model.charEnd[wordLastCharIndex] = si;
 }
 
 function isUpperCaseLetter(ch) {
@@ -723,7 +734,15 @@ function buildTypingModel(text, mode = cfg.typingMode) {
   if (G && G.requireEnter && chars[chars.length - 1] !== '\n') {
     chars.push('\n');
   }
-  const model = { chars, target: '', stepMap: [], charStart: Array(chars.length).fill(-1), charEnd: Array(chars.length).fill(-1) };
+  const model = {
+    chars,
+    target: '',
+    stepMap: [],
+    toneTargets: [],
+    toneNames: [],
+    charStart: Array(chars.length).fill(-1),
+    charEnd: Array(chars.length).fill(-1)
+  };
   let i = 0;
   while (i < chars.length) {
     if (isLetter(chars[i])) {
@@ -745,14 +764,21 @@ function buildTypingModel(text, mode = cfg.typingMode) {
           toneChar = ci;
         }
       }
-      if (tone && toneChar >= 0) addSteps(model, (mode === 'vni' ? VNI_TONE : TELEX_TONE)[tone], toneChar);
+      if (tone && toneChar >= 0) {
+        const toneKey = (mode === 'vni' ? VNI_TONE : TELEX_TONE)[tone];
+        const lastCharIndex = word[word.length - 1];
+        addToneStep(model, toneKey, lastCharIndex, toneChar, toneName(tone));
+      }
     } else {
       const ch = chars[i];
-      if (ch === '\n') {
-        addSteps(model, '\n', i);
-      } else {
-        addSteps(model, (ch === '\t') ? ' ' : ch, i);
-      }
+      const k = (ch === '\n') ? '\n' : (ch === '\t' ? ' ' : ch);
+      const si = model.target.length;
+      model.target += k;
+      model.stepMap.push(i);
+      model.toneTargets.push(null);
+      model.toneNames.push(null);
+      if (model.charStart[i] < 0) model.charStart[i] = si;
+      model.charEnd[i] = si;
       i++;
     }
   }
@@ -765,7 +791,15 @@ function buildDirectModel(text) {
   if (G && G.requireEnter && chars[chars.length - 1] !== '\n') {
     chars.push('\n');
   }
-  const model = { chars, target: chars.join(''), stepMap: [], charStart: Array(chars.length).fill(-1), charEnd: Array(chars.length).fill(-1) };
+  const model = {
+    chars,
+    target: chars.join(''),
+    stepMap: [],
+    toneTargets: Array(chars.length).fill(null),
+    toneNames: Array(chars.length).fill(null),
+    charStart: Array(chars.length).fill(-1),
+    charEnd: Array(chars.length).fill(-1)
+  };
   chars.forEach((ch, i) => {
     model.stepMap.push(i);
     model.charStart[i] = i;
@@ -852,12 +886,16 @@ function exactPrefixLength(value, target) {
 
 function isToneStep(step = G.index) {
   if (!cfg.internalIme || !G.model || step < 0 || step >= G.model.target.length) return false;
-  const ci = G.model.stepMap[step], ch = G.model.chars[ci];
-  if (!isLetter(ch)) return false;
-  const info = charInfo(ch);
-  if (!info.tone) return false;
-  const toneKey = (cfg.typingMode === 'vni' ? VNI_TONE : TELEX_TONE)[info.tone];
-  return G.model.target[step] === toneKey && step === G.model.charEnd[ci];
+  return !!(G.model.toneTargets && G.model.toneTargets[step] != null);
+}
+
+function getToneStepInfo(step = G.index) {
+  if (!isToneStep(step)) return null;
+  const toneChar = G.model.toneTargets[step];
+  const tName = (G.model.toneNames && G.model.toneNames[step]) || 'DẤU';
+  const targetChar = G.model.chars[toneChar];
+  const key = G.model.target[step];
+  return { toneChar, toneName: tName, targetChar, key };
 }
 
 function toneName(t) {
@@ -868,6 +906,15 @@ function displayState(i) {
   if (!G.model || !G.model.stepMap) return 'pending';
   const current = G.model.stepMap[G.index];
   if (current == null || current < 0) return 'pending';
+
+  if (isToneStep(G.index)) {
+    const toneChar = G.model.toneTargets[G.index];
+    if (i === toneChar) return 'current tone-target';
+    if (i < current) return 'done';
+    if (i === current) return 'done';
+    return 'pending';
+  }
+
   if (i < current) return 'done';
   if (i === current) return 'current';
   return 'pending';
@@ -3317,18 +3364,28 @@ function renderPrompt() {
   const form = G.round < 3 ? 'TỪ TIẾNG VIỆT' : G.round < 7 ? 'CỤM TỪ TIẾNG VIỆT' : G.round < 10 ? 'CÂU TIẾNG VIỆT' : 'ĐOẠN VĂN TIẾNG VIỆT';
   if ($('#promptLabel')) $('#promptLabel').textContent = `${form} · ${G.promptTheme || 'THỬ THÁCH'}`;
 
+  const k = guideKey();
   // Update Unified Word / Keystroke Subtitle
   const rawPill = $('#rawInputText'), hintLabel = $('#typingHintLabel');
   if (rawPill) {
-    const bounds = wordBoundsForStep(G.index);
-    if (bounds && G.model) {
-      const activeWordChars = G.model.chars.slice(bounds[0], bounds[1] + 1).join('');
-      const activeKeystrokes = rawKeystrokesForWord(activeWordChars);
-      if (hintLabel) hintLabel.textContent = 'Từ đang gõ';
-      rawPill.textContent = `${activeWordChars} (${activeKeystrokes})`;
-    } else {
+    if (isToneStep(G.index)) {
+      const tInfo = getToneStepInfo(G.index);
+      if (hintLabel) hintLabel.textContent = 'Gõ dấu thanh';
+      rawPill.innerHTML = `GÕ DẤU <span style="color:#facc15;font-weight:900">${tInfo.toneName}</span>: bấm [ <strong>${keyLabel(k)}</strong> ] cho chữ "<strong>${escapeHtml(tInfo.targetChar)}</strong>"`;
+    } else if (k === ' ' || k === 'space') {
       if (hintLabel) hintLabel.textContent = 'Phím tiếp theo';
-      rawPill.textContent = keyLabel(guideKey());
+      rawPill.innerHTML = `Nhấn phím <span style="color:#facc15;font-weight:900">[ SPACE ␣ ]</span> (Dấu Cách)`;
+    } else {
+      const bounds = wordBoundsForStep(G.index);
+      if (bounds && G.model) {
+        const activeWordChars = G.model.chars.slice(bounds[0], bounds[1] + 1).join('');
+        const activeKeystrokes = rawKeystrokesForWord(activeWordChars);
+        if (hintLabel) hintLabel.textContent = 'Từ đang gõ';
+        rawPill.innerHTML = `${escapeHtml(activeWordChars)} (<span style="color:#94a3b8">${escapeHtml(activeKeystrokes)}</span>) · Phím: [ <strong>${keyLabel(k)}</strong> ]`;
+      } else {
+        if (hintLabel) hintLabel.textContent = 'Phím tiếp theo';
+        rawPill.innerHTML = `Phím cần bấm: [ <strong>${keyLabel(k)}</strong> ]`;
+      }
     }
   }
 
@@ -3343,8 +3400,18 @@ function renderPrompt() {
     $('#wordTiles').className = 'word-tiles';
     $('#wordTiles').innerHTML = chars.map((ch, i) => {
       const st = displayState(i);
+      const isCur = st.includes('current');
+      const isTone = st.includes('tone-target');
       if (ch === '\n') return `<span class="tile enter ${st}"><kbd>↵</kbd> ENTER</span>`;
-      if (/\s/.test(ch)) return `<span class="tile space ${st === 'current' ? 'current-space' : ''}"></span>`;
+      if (/\s/.test(ch)) {
+        if (isCur) return `<span class="tile space current current-space"><span class="space-badge">␣ SPACE</span></span>`;
+        return `<span class="tile space"></span>`;
+      }
+      if (isTone) {
+        const tInfo = getToneStepInfo(G.index);
+        const tKey = tInfo ? keyLabel(tInfo.key) : '';
+        return `<span class="tile ${st}"><span class="char-main">${escapeHtml(ch)}</span><span class="tone-badge">${tKey}</span></span>`;
+      }
       if (!isLetter(ch)) return `<span class="tile punct ${st}">${escapeHtml(ch)}</span>`;
       return `<span class="tile ${st}">${escapeHtml(ch)}</span>`;
     }).join('');
@@ -3352,14 +3419,24 @@ function renderPrompt() {
     $('#wordTiles').className = 'word-tiles long-text';
     $('#wordTiles').innerHTML = chars.map((ch, i) => {
       const st = displayState(i);
+      const isCur = st.includes('current');
+      const isTone = st.includes('tone-target');
       if (ch === '\n') return `<span class="flow-punct enter-flow ${st}"><kbd>↵</kbd> ENTER</span>`;
-      if (/\s/.test(ch)) return `<span class="flow-char ${st} ${st === 'current' ? 'current-space' : ''}"> </span>`;
+      if (/\s/.test(ch)) {
+        if (isCur) return `<span class="flow-char current current-space"><span class="space-badge">␣ SPACE</span></span>`;
+        return `<span class="flow-char ${st}"> </span>`;
+      }
+      if (isTone) {
+        const tInfo = getToneStepInfo(G.index);
+        const tKey = tInfo ? keyLabel(tInfo.key) : '';
+        return `<span class="flow-char ${st}"><span class="char-main">${escapeHtml(ch)}</span><span class="tone-badge">${tKey}</span></span>`;
+      }
       if (!isLetter(ch)) return `<span class="flow-punct ${st}">${escapeHtml(ch)}</span>`;
       return `<span class="flow-char ${st}">${escapeHtml(ch)}</span>`;
     }).join('');
 
     requestAnimationFrame(() => {
-      const cur = document.querySelector('#wordTiles .flow-char.current, #wordTiles .flow-punct.current');
+      const cur = document.querySelector('#wordTiles .flow-char.current, #wordTiles .flow-punct.current, #wordTiles .current-space');
       const container = document.getElementById('wordTiles');
       if (cur && container) {
         const offsetTop = cur.offsetTop - container.offsetTop;
@@ -3436,10 +3513,27 @@ function guide() {
     el.classList.toggle('expected', isExp);
   });
 
-  if ($('#currentKey')) $('#currentKey').textContent = keyLabel(k);
+  if ($('#currentKey')) {
+    if (isToneStep(G.index)) {
+      const tInfo = getToneStepInfo(G.index);
+      $('#currentKey').textContent = `${keyLabel(k)} (Dấu ${tInfo.toneName})`;
+    } else if (k === ' ' || k === 'space') {
+      $('#currentKey').textContent = 'SPACE ␣';
+    } else {
+      $('#currentKey').textContent = keyLabel(k);
+    }
+  }
+
   if ($('#fingerLabel')) {
     if (k === '\n' || k === 'enter') {
       $('#fingerLabel').textContent = 'Ngón út tay phải · Nhấn ENTER chốt câu';
+    } else if (k === ' ' || k === 'space') {
+      $('#fingerLabel').textContent = 'Ngón cái hai tay · Bấm phím SPACE (Dấu Cách)';
+    } else if (isToneStep(G.index)) {
+      const tInfo = getToneStepInfo(G.index);
+      const [side, finger] = f || ['left', 'index'];
+      const h = homeHintFor(k);
+      $('#fingerLabel').textContent = `${LABEL[finger]} tay ${side === 'left' ? 'trái' : 'phải'}${h} · Đặt dấu ${tInfo.toneName} cho "${tInfo.targetChar}"`;
     } else if (f) {
       const [side, finger] = f;
       const h = homeHintFor(k);
@@ -3459,8 +3553,8 @@ function guide() {
   const th = $('#toneStepHint');
   if (th) {
     if (isToneStep(G.index)) {
-      const ci = G.model.stepMap[G.index], info = charInfo(G.model.chars[ci]);
-      th.textContent = `ĐẶT DẤU ${toneName(info.tone)}: chỉ nhấn ${keyLabel(k)} · không gõ lại chữ “${G.model.chars[ci]}”`;
+      const tInfo = getToneStepInfo(G.index);
+      th.textContent = `ĐẶT DẤU ${tInfo.toneName}: chỉ nhấn phím [ ${keyLabel(k)} ] cho chữ “${tInfo.targetChar}”`;
       th.classList.add('show');
     } else {
       th.textContent = '';
@@ -3571,10 +3665,7 @@ function consumeEarlyTone(key) {
   for (let si = G.index + 1; si < G.model.target.length; si++) {
     const ci = G.model.stepMap[si];
     if (ci < bounds[0] || ci > bounds[1]) break; // Outside current word
-    const info = charInfo(G.model.chars[ci]);
-    if (!info.tone) continue;
-    const expectedToneKey = (cfg.typingMode === 'vni' ? VNI_TONE : TELEX_TONE)[info.tone];
-    if (G.model.target[si] === key && expectedToneKey === key) {
+    if (G.model.toneTargets && G.model.toneTargets[si] != null && G.model.target[si] === key) {
       toneSi = si;
       break;
     }
@@ -3582,9 +3673,11 @@ function consumeEarlyTone(key) {
 
   if (toneSi < 0) return false;
 
-  // Splice out toneSi from G.model.target and stepMap
+  // Splice out toneSi from G.model.target, stepMap, toneTargets, toneNames
   G.model.target = G.model.target.slice(0, toneSi) + G.model.target.slice(toneSi + 1);
   G.model.stepMap.splice(toneSi, 1);
+  if (G.model.toneTargets) G.model.toneTargets.splice(toneSi, 1);
+  if (G.model.toneNames) G.model.toneNames.splice(toneSi, 1);
 
   // Adjust charStart and charEnd for all characters
   for (let c = 0; c < G.model.chars.length; c++) {
