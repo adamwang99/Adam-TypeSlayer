@@ -5,6 +5,7 @@
 **Trảm quái vô tận · 10 Boss Thần Thoại · 3 Lớp Nhân Vật · Bộ Gõ Telex & VNI Độc Lập**
 
 [![Phiên Bản](https://img.shields.io/badge/Phiên%20Bản-v10.16.0%20Final-gold?style=for-the-badge&logo=shield)](https://github.com/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0%20(Phi%20Thương%20Mại)-critical?style=for-the-badge&logo=creative-commons)](LICENSE)
 [![Nền Tảng](https://img.shields.io/badge/Nền%20Tảng-Windows%20|%20Web%20|%20Portable-blue?style=for-the-badge&logo=windows)](https://github.com/)
 [![Dung Lượng](https://img.shields.io/badge/Dung%20Lượng-27MB%20(1%20File%20EXE)-emerald?style=for-the-badge&logo=speedtest)](https://github.com/)
 [![Ngôn Ngữ](https://img.shields.io/badge/Ngôn%20Ngữ-Tiếng%20Việt%20100%25-red?style=for-the-badge&logo=vietnam)](https://github.com/)
@@ -123,10 +124,13 @@ type_slayer_final_v9_14/
 
 ---
 
-## 📜 BẢN QUYỀN & TÁC GIẢ
+## 📜 BẢN QUYỀN & GIẤY PHÉP (LICENSE)
 
 * **Tác giả**: Phát triển và thiết kế bởi **ADAM ECOSYSTEM**.
-* **Bản quyền**: Dự án mã nguồn mở phục vụ cộng đồng học tập và giải trí luyện gõ phím tiếng Việt.
+* **Giấy phép**: Được phân phối theo giấy phép quốc tế **[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](LICENSE)**.
+* 🚫 **NGHIÊM CẤM THƯƠNG MẠI HÓA (NON-COMMERCIAL)**:
+  * Tuyệt đối **không được phép bán lại**, đóng gói thương mại, thu phí người chơi hoặc chèn quảng cáo kiếm tiền dưới mọi hình thức.
+  * Chỉ được phép tải về, chia sẻ, sử dụng và phát triển cho **mục đích cá nhân, học tập, nghiên cứu và rèn luyện kỹ năng gõ phím phi lợi nhuận**.
 
 <div align="center">
 
