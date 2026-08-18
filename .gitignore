@@ -1,0 +1,11 @@
+# Build & Scratch Temp Files
+scratch/
+pack_temp/
+*.log
+payload.zip
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

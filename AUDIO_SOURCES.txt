@@ -1,0 +1,17 @@
+TYPE SLAYER VN V8.5 - AUDIO SOURCES
+
+Battle playlist (6 random rotating tracks) was created locally from audio files supplied by the user in this conversation:
+- EDM-MIX-BASS-BOOSTED-CLUB-BANGER-DANCE-P_Media_JIIIKa.mp3
+- MIXTAPE-2026-THU-CUOI-REMIX-x-MANH-BA.mp3
+- BEST-BEAST-Mode-Bass-Drops-Only-High-End_Media.mp3
+
+The six in-game remix_*.ogg files are shortened/loudness-normalized excerpts of those user-provided sources for local game playback. They rotate randomly and avoid immediate repeats.
+
+Other local SFX/voice files are inherited from the previous game build:
+- slash.ogg
+- impact.ogg
+- crit.ogg
+- attack_voice.ogg
+- hurt_voice.ogg
+- victory_music.ogg
+- defeat_music.ogg

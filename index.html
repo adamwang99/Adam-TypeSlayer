@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Adam TypeSlayer v10.16.0 · Game Gõ Phím RPG Diệt Boss Tiếng Việt</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="stylesheet" href="style.css?v=10.16.0" />
+</head>
+<body>
+<div id="app">
+  <section id="setup" class="screen active">
+    <div class="setup-bg"></div><div class="shade"></div>
+    <div class="setup-shell">
+      <div class="brand">
+        <div class="brand-hero-row">
+          <img src="assets/logo.webp" alt="Adam TypeSlayer Logo" class="brand-logo" onerror="this.src='assets/logo.png'" />
+          <div class="brand-titles">
+            <small>ADAM ECOSYSTEM · ENDLESS RPG <span class="app-version-pill app-version-target">v10.16.0</span></small>
+            <h1>Adam TypeSlayer</h1>
+            <p>Đấu trường luyện gõ tiếng Việt RPG · Xây dựng sức mạnh và trảm quái vô tận.</p>
+          </div>
+        </div>
+        <div class="player-name-box">
+          <label for="playerNameInput">Tên người chơi</label>
+          <input id="playerNameInput" maxlength="20" autocomplete="off" placeholder="Nhập tên của bạn" />
+          <small id="playerProfileHint">Nhập tên để xem kỷ lục cá nhân.</small>
+        </div>
+        <div class="setup-best">🏆 Kỷ lục của <b id="setupPlayerLabel">người chơi</b>: <strong id="setupBestScore">0</strong> · Vòng cao nhất <strong id="setupBestRound">0</strong></div>
+        <div class="typing-mode-box">
+          <label for="typingModeSelect">Kiểu gõ tiếng Việt</label>
+          <select id="typingModeSelect"><option value="telex" selected>TELEX</option><option value="vni">VNI</option></select>
+          <div class="internal-ime-row">
+            <div><b>Bộ gõ tiếng Việt tích hợp</b><span id="imeSetupState">BẬT · Khóa bộ gõ ngoài trong trận</span></div>
+            <label class="switch" title="Bật/tắt bộ gõ tích hợp"><input id="internalImeToggle" type="checkbox" checked><i></i></label>
+          </div>
+          <small id="imeSetupHint">BẬT: game đọc trực tiếp mã phím vật lý và chặn bộ gõ ngoài trong vùng chiến đấu. UniKey bật hay tắt đều không ảnh hưởng.</small>
+        </div>
+
+        <!-- DEDICATED CUSTOM BGM SELECTION BOX -->
+        <div class="setup-music-card glass">
+          <div class="setup-music-header">
+            <div class="setup-music-title">
+              <span class="setup-music-icon">🎵</span>
+              <div class="setup-music-meta">
+                <b>Nhạc Nền Tùy Chỉnh (Custom BGM)</b>
+                <span class="custom-music-badge">Gốc (6 bài RPG)</span>
+              </div>
+            </div>
+            <button type="button" class="reset-music-btn" data-reset-music title="Khôi phục nhạc nền gốc">🔄 Mặc định</button>
+          </div>
+          <div class="setup-music-actions">
+            <button type="button" class="upload-music-btn" data-upload-music="folder" title="Tải cả thư mục nhạc (.mp3, .ogg, .wav, .m4a)">
+              📂 Chọn cả thư mục
+            </button>
+            <button type="button" class="upload-music-btn" data-upload-music="files" title="Chọn nhiều file nhạc từ máy tính">
+              🎶 Chọn nhiều file
+            </button>
+          </div>
+          <div class="custom-playlist-info" style="display:none">
+            <span class="custom-track-text">Đang dùng nhạc riêng: <b class="custom-track-name">-</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="class-grid">
+        <button class="class-card active" data-class="assassin"><img src="assets/sprites/assassin_idle.webp"><b>Sát thủ</b><span>Crit nhanh · né đòn · độc nhận</span></button>
+        <button class="class-card" data-class="warrior"><img src="assets/sprites/warrior_idle.webp"><b>Chiến binh</b><span>Máu 720 (+50%) · Trọng trảm · khiên</span></button>
+        <button class="class-card" data-class="mage"><img src="assets/sprites/mage_idle.webp"><b>Pháp sư</b><span>Hỏa cầu · băng phong · lôi liên</span></button>
+      </div>
+      <div class="setup-actions"><button id="startBtn" class="gold">⚔ VÀO GAME</button><button id="guideBtn" class="ghost">Hướng dẫn TELEX / VNI</button><button id="creditsBtn" class="ghost">ℹ️ Giới thiệu & Tác giả</button></div>
+    </div>
+  </section>
+
+  <section id="game" class="screen" tabindex="-1">
+    <canvas id="ambientCanvas" class="ambient-canvas"></canvas>
+    <div id="bgA" class="battle-bg"></div><div id="bgB" class="battle-bg next"></div><div class="battle-shade"></div>
+    <div id="flash" class="screen-flash"></div>
+    <div id="dangerBadge" class="danger-badge">⚠ HP NGUY HIỂM · NHẠC TĂNG NHỊP</div>
+    <div id="difficultyBanner" class="difficulty-banner glass">
+      <span class="diff-icon">🔥</span>
+      <div class="diff-text">
+        <b id="diffTitle">ĐỘ KHÓ NÂNG CAO!</b>
+        <p id="diffDesc">Yêu cầu bấm SHIFT để viết hoa chính xác chữ cái & bấm ENTER kết thúc câu.</p>
+      </div>
+    </div>
+
+    <header class="hud">
+      <div class="hud-box player glass">
+        <img id="portrait" src="assets/sprites/assassin_idle.webp" alt="Player">
+        <div class="hud-meta">
+          <div><b id="className">Sát thủ</b><span id="levelText">Vòng 1</span></div>
+          <div class="player-line">Người chơi <b id="playerNameHud">Chiến binh</b> · Kỷ lục <b id="bestScore">0</b></div>
+          <div class="hp"><i id="playerHpBar" style="width: 100%;"></i></div>
+          <div id="playerBonusText" class="hud-bonus player-bonus">BONUS: DMG +0.0% · Hút máu 0.0% · Kỹ năng sẵn sàng</div>
+          <small>HP <b id="playerHpText">480/480</b> · Điểm <b id="score">0</b> · Combo <b id="combo">x0</b></small>
+        </div>
+      </div>
+
+      <div class="world-center-col">
+        <div class="world">
+          <b id="worldText">ĐẢO MÂY KHỞI ĐẦU</b>
+          <div class="round-version-row">
+            <span id="roundText">VÒNG 1</span>
+            <span class="hud-version-pill app-version-target">v10.1.0</span>
+          </div>
+          <div id="stageDots" class="stage-dots"></div>
+        </div>
+
+        <!-- TOP QUICK ACTION BAR (ADAM-FLOW INSPIRED) -->
+        <div class="top-actions-bar glass">
+          <button class="top-act-btn" data-open-about title="Giới thiệu về Adam TypeSlayer & Tác giả">
+            <span>ℹ️</span> <b>About</b>
+          </button>
+          <button class="top-act-btn" data-open-guide title="Hướng dẫn gõ tiếng Việt TELEX / VNI">
+            <span>📖</span> <b>Hướng dẫn</b>
+          </button>
+          <div class="top-act-sep"></div>
+          <button id="inGameMusicBtn" class="top-act-btn icon-only" title="Bật/tắt nhạc nền">♫</button>
+          <button id="inGameSoundBtn" class="top-act-btn icon-only" title="Bật/tắt hiệu ứng âm thanh">🔊</button>
+          <button id="inGameVolumeBtn" class="top-act-btn icon-only" title="Chỉnh âm lượng & Tải nhạc">🎚</button>
+          <button id="inGamePauseBtn" class="top-act-btn icon-only pause-btn" title="Tạm dừng trận đấu (Esc)">Ⅱ</button>
+
+          <!-- TOP DROPDOWN VOLUME PANEL -->
+          <div id="topVolumePanel" class="volume-panel top-volume-panel glass">
+            <div class="vol-header">
+              <span>ĐIỀU CHỈNH ÂM LƯỢNG & NHẠC</span>
+              <button class="vol-close" data-close-vol title="Đóng bảng">✕</button>
+            </div>
+            <div class="vol-group">
+              <div class="vol-label-row">
+                <span class="vol-name">♫ Nhạc nền</span>
+                <b class="music-vol-val">70%</b>
+              </div>
+              <div class="vol-control-row">
+                <button class="vol-step-btn" data-vol-action="mute-music" title="Tắt / Bật">🔇</button>
+                <input type="range" class="music-vol-slider" min="0" max="100" value="70">
+                <button class="vol-step-btn" data-vol-action="max-music" title="100%">🔊</button>
+              </div>
+            </div>
+            <div class="vol-group">
+              <div class="vol-label-row">
+                <span class="vol-name">🔊 Hiệu ứng</span>
+                <b class="sfx-vol-val">80%</b>
+              </div>
+              <div class="vol-control-row">
+                <button class="vol-step-btn" data-vol-action="mute-sfx" title="Tắt / Bật">🔇</button>
+                <input type="range" class="sfx-vol-slider" min="0" max="100" value="80">
+                <button class="vol-step-btn" data-vol-action="max-sfx" title="100%">🔊</button>
+              </div>
+            </div>
+            <!-- CUSTOM MUSIC UPLOAD SECTION -->
+            <div class="vol-custom-music-box">
+              <div class="vol-custom-title">
+                <span>🎵 TỰ TẢI NHẠC NỀN</span>
+                <span class="custom-music-badge">Gốc (6 bài)</span>
+              </div>
+              <div class="custom-music-btns">
+                <button type="button" class="upload-music-btn" data-upload-music="folder" title="Tải cả thư mục nhạc từ máy tính">📁 Chọn cả thư mục</button>
+                <button type="button" class="upload-music-btn" data-upload-music="files" title="Chọn nhiều file nhạc (.mp3, .ogg, .wav, .m4a)">🎵 Chọn nhiều file</button>
+              </div>
+              <div class="custom-playlist-info" style="display:none">
+                <span class="custom-track-text">Đang phát nhạc riêng: <b class="custom-track-name">—</b></span>
+                <button type="button" class="reset-music-btn" data-reset-music title="Khôi phục nhạc nền mặc định">↺ Nhạc mặc định</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-box boss glass">
+        <div><b id="bossName">Vua Slime</b><span id="bossHpText">1800/1800</span></div>
+        <div class="hp enemy"><i id="bossHpBar" style="width: 100%;"></i></div>
+        <div id="bossBonusText" class="hud-bonus boss-bonus">BONUS: HP +0% · ATK +0%</div>
+        <div class="boss-subline"><small id="bossPowerText">Sức mạnh boss x1.00</small><span id="bossEffectTag" class="boss-effect-tag">🔥 Cuồng nộ</span></div>
+      </div>
+    </header>
+
+    <div id="wordPanel" class="word-panel glass">
+      <div class="prompt-top-row">
+        <span id="promptLabel" class="prompt-badge">TỪ TIẾNG VIỆT · Luyện tập</span>
+        <div class="raw-input-subtitle">
+          <span id="typingModeHud">TELEX</span> · <span id="typingHintLabel">Từ hiện tại</span>: <b id="rawInputText">—</b>
+        </div>
+      </div>
+      <div id="wordTiles" class="word-tiles"></div>
+      <div id="sentenceProgress" class="sentence-progress-wrap">
+        <div class="sentence-bar"><i id="sentenceBarFill" style="width: 0%;"></i></div>
+      </div>
+      <div id="toneStepHint" class="tone-step-hint"></div>
+      <textarea id="externalImeCapture" class="ime-capture" aria-label="Vùng nhập cho bộ gõ ngoài" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="none"></textarea>
+    </div>
+
+    <main id="arena" class="arena">
+      <div class="island left"></div><div class="island right"></div>
+      <div id="heroWrap" class="fighter hero-wrap"><img id="hero" src="assets/sprites/assassin_idle.webp" alt="Hero"></div>
+      <div id="bossWrap" class="fighter boss-wrap"><img id="boss" src="assets/sprites/slime_idle.webp" alt="Boss"></div>
+      <img id="heroFx" class="hero-fx" src="assets/fx/fx_1.webp" alt="FX">
+      <img id="enemyOrb" class="enemy-orb" src="assets/fx/proj_10.webp" alt="Projectile">
+      <div id="bossDamage" class="damage boss-damage"></div><div id="playerDamage" class="damage player-damage"></div>
+      <div id="critText" class="crit-text">CRIT!</div><div id="warning" class="warning">⚠ Boss phản công!</div><div id="bossComboCallout" class="boss-combo-callout"></div><div id="heroImpact" class="impact hero-impact"></div><div id="bossImpact" class="impact boss-impact"></div>
+      <div id="growthText" class="growth-text">HỒI +50% HP</div><div id="imeToast" class="ime-toast">Bộ gõ tích hợp: BẬT</div>
+      <div id="comboBurst" class="combo-burst">COMBO <b>x0</b></div>
+      <div id="skillDock" class="skill-dock" aria-label="Kỹ năng nhân vật"></div>
+      <div class="live-stats glass"><div><span>WPM</span><b id="liveWpm">0</b></div><div><span>CHÍNH XÁC</span><b id="liveAcc">100%</b></div><div><span>COMBO</span><b id="liveCombo">0</b></div></div>
+      <div id="clearBanner" class="clear-banner"><small>🎉 CHIẾN THẮNG VANG DỘI</small><b id="clearBoss">Vua Slime</b><span id="clearPraise" class="praise-quote">🎉 ĐẠI THẮNG VANG DỘI! DIỆT GỌN BOSS!</span></div>
+    </main>
+
+    <footer class="typing-zone">
+      <aside class="guide glass">
+        <b>Hướng dẫn tay</b>
+        <p>Đặt tay theo chuẩn touch typing: <b>A S D F</b> cho tay trái, <b>J K L ;</b> cho tay phải, <b>hai ngón cái</b> canh phím Space. Khi gõ sai, ký tự đúng sẽ nhấp nháy để nhắc.</p>
+        <div class="gh"><span>F</span> Neo ngón trỏ trái <i>•</i> <span>J</span> Neo ngón trỏ phải</div>
+        <div class="index-note">G do ngón trỏ trái vươn từ F sang · H do ngón trỏ phải vươn từ J sang.</div>
+        <div class="finger-map">
+          <div><b>Út trái</b><span>1 · Q A Z</span></div>
+          <div><b>Áp út trái</b><span>2 · W S X</span></div>
+          <div><b>Giữa trái</b><span>3 · E D C</span></div>
+          <div><b>Trỏ trái</b><span>4 5 · R T F G V B</span></div>
+          <div><b>Trỏ phải</b><span>6 7 · Y U H J N M</span></div>
+          <div><b>Giữa phải</b><span>8 · I K ,</span></div>
+          <div><b>Áp út phải</b><span>9 · O L .</span></div>
+          <div><b>Út phải</b><span>0 · P ; /</span></div>
+          <div><b>Ngón cái</b><span>Space</span></div>
+        </div>
+        <div id="buffSummary" class="buff-summary">DMG +0% · Hút máu 0%</div>
+        <div class="word-hit-note">⚔ Damage chỉ kích hoạt khi hoàn thành từng từ</div>
+        <button id="imeBtn" class="ime-mode-btn">Bộ gõ tích hợp: BẬT</button>
+        <button id="guideGameBtn" class="guide-game-btn" data-open-guide>Hướng dẫn TELEX / VNI</button>
+      </aside>
+
+      <div class="keyboard-wrap">
+        <button id="handGuideToggleFloating" class="hand-guide-floating-btn" title="Bật/Tắt hiển thị bàn tay 3D mờ">
+          <span class="hgf-icon">🙌</span>
+          <span class="hgf-text">Bàn tay: <b>BẬT</b></span>
+        </button>
+        <div class="keyboard-card glass">
+          <div class="hands-stage" id="handsStage">
+            <img id="leftHand" class="hand left-hand" src="assets/hands/left_open.webp" alt="Left Hand">
+            <img id="rightHand" class="hand right-hand" src="assets/hands/right_open.webp" alt="Right Hand">
+          </div>
+          <div id="fingertipBeacon" class="fingertip-beacon"></div>
+          <div id="keyboard" class="keyboard"></div>
+        </div>
+      </div>
+
+      <aside class="typing-side">
+        <div class="readout glass">
+          <div class="target-title">PHÍM CẦN BẤM</div>
+          <div id="currentKey" class="target-key">-</div>
+          <div id="fingerLabel" class="finger-label">—</div>
+        </div>
+        <div class="side-controls-wrap">
+          <div id="volumePanel" class="volume-panel bottom-volume-panel glass">
+            <div class="vol-header">
+              <span>ĐIỀU CHỈNH ÂM LƯỢNG & NHẠC</span>
+              <button class="vol-close" data-close-vol title="Đóng bảng">✕</button>
+            </div>
+            <div class="vol-group">
+              <div class="vol-label-row">
+                <span class="vol-name">♫ Nhạc nền</span>
+                <b class="music-vol-val">70%</b>
+              </div>
+              <div class="vol-control-row">
+                <button class="vol-step-btn" data-vol-action="mute-music" title="Tắt / Bật">🔇</button>
+                <input id="musicVolume" type="range" class="music-vol-slider" min="0" max="100" value="70">
+                <button class="vol-step-btn" data-vol-action="max-music" title="100%">🔊</button>
+              </div>
+            </div>
+            <div class="vol-group">
+              <div class="vol-label-row">
+                <span class="vol-name">🔊 Hiệu ứng</span>
+                <b class="sfx-vol-val">80%</b>
+              </div>
+              <div class="vol-control-row">
+                <button class="vol-step-btn" data-vol-action="mute-sfx" title="Tắt / Bật">🔇</button>
+                <input id="sfxVolume" type="range" class="sfx-vol-slider" min="0" max="100" value="80">
+                <button class="vol-step-btn" data-vol-action="max-sfx" title="100%">🔊</button>
+              </div>
+            </div>
+            <!-- CUSTOM MUSIC UPLOAD SECTION -->
+            <div class="vol-custom-music-box">
+              <div class="vol-custom-title">
+                <span>🎵 TỰ TẢI NHẠC NỀN</span>
+                <span class="custom-music-badge">Gốc (6 bài)</span>
+              </div>
+              <div class="custom-music-btns">
+                <button type="button" class="upload-music-btn" data-upload-music="folder" title="Tải cả thư mục nhạc từ máy tính">📁 Chọn cả thư mục</button>
+                <button type="button" class="upload-music-btn" data-upload-music="files" title="Chọn nhiều file nhạc (.mp3, .ogg, .wav, .m4a)">🎵 Chọn nhiều file</button>
+              </div>
+              <div class="custom-playlist-info" style="display:none">
+                <span class="custom-track-text">Đang phát nhạc riêng: <b class="custom-track-name">—</b></span>
+                <button type="button" class="reset-music-btn" data-reset-music title="Khôi phục nhạc nền mặc định">↺ Nhạc mặc định</button>
+              </div>
+            </div>
+          </div>
+          <div class="controls">
+            <button id="musicBtn" class="bot-ctrl-btn" title="Bật/tắt nhạc nền">♫</button>
+            <button id="soundBtn" class="bot-ctrl-btn" title="Bật/tắt hiệu ứng âm thanh">🔊</button>
+            <button id="volumeBtn" class="bot-ctrl-btn" title="Chỉnh âm lượng & Tải nhạc">🎚</button>
+            <button id="pauseBtn" class="bot-ctrl-btn" title="Tạm dừng">Ⅱ</button>
+          </div>
+        </div>
+      </aside>
+    </footer>
+  </section>
+
+  <section id="result" class="screen result-screen">
+    <div class="result-card glass"><small>ADAM TYPESLAYER <span class="app-version-target">v10.1.0</span></small><h2 id="resultTitle">Hành trình kết thúc</h2><div class="result-player">Người chơi: <b id="resultPlayerName">—</b></div><div id="recordBadge" class="record-badge">KỶ LỤC MỚI!</div><div class="result-grid"><div><span>Điểm</span><b id="rScore">0</b></div><div><span>Kỷ lục</span><b id="rBest">0</b></div><div><span>Vòng đạt được</span><b id="rRound">1</b></div><div><span>Chính xác</span><b id="rAcc">100%</b></div><div><span>WPM</span><b id="rWpm">0</b></div><div><span>Combo cao nhất</span><b id="rCombo">0</b></div></div><div class="result-actions"><button id="againBtn" class="gold">Chơi lại</button><button id="backBtn" class="ghost">Chọn nhân vật</button><button class="ghost" data-open-guide title="Xem hướng dẫn gõ tiếng Việt TELEX / VNI">📖 Hướng dẫn chơi</button></div></div>
+  </section>
+
+
+  <div id="pauseModal" class="modal pause-modal"><div class="modal-card glass pause-card">
+    <small>ADAM TYPESLAYER · TẠM DỪNG <span class="app-version-target">v10.1.0</span></small><h3>Trận chiến đang tạm dừng</h3>
+    <p>Boss sẽ không tấn công và thời gian WPM sẽ không tính trong lúc tạm dừng.</p>
+    <div class="pause-actions">
+      <button id="resumeBtn" class="gold">▶ Tiếp tục</button>
+      <button class="ghost" data-open-about>ℹ️ Giới thiệu & Tác giả</button>
+      <button class="ghost" data-open-guide>📖 Hướng dẫn gõ TELEX / VNI</button>
+      <button id="stopGameBtn" class="ghost danger-action">■ Dừng game</button>
+      <button id="reselectBtn" class="ghost">↩ Chọn lại nhân vật</button>
+    </div>
+    <small class="pause-tip">Nhấn <b>Esc</b> lần nữa để tiếp tục.</small>
+  </div></div>
+  <div id="upgradeModal" class="modal upgrade-modal"><div class="modal-card glass upgrade-card"><small>PHẦN THƯỞNG SAU VÒNG</small><h3>Chọn 1 trong 3 nâng cấp</h3><p class="upgrade-growth">Sau mỗi vòng, người chơi <b>hồi 50% HP tối đa</b>. Sau mỗi thế giới (3 vòng), bạn nhận thêm <b>+5% Max HP</b>. Các nâng cấp sát thương và hút máu cộng dồn tối đa 15 lần.</p><div id="upgradeChoices" class="upgrade-choices"></div><div id="upgradeStats" class="upgrade-stats"></div></div></div>
+
+  <div id="guideModal" class="modal"><div class="modal-card glass guide-modal-card"><button class="close" data-close>×</button><small>HƯỚNG DẪN GÕ TIẾNG VIỆT</small><h3>Gõ tiếng Việt ngay trong game</h3><p><b>Bộ gõ tích hợp BẬT</b>: game tự xử lý TELEX/VNI từ phím vật lý, không cần UniKey. <b>TẮT</b>: game nhận chữ Unicode do bộ gõ hệ điều hành/UniKey tạo ra. Khi dùng TELEX/VNI tích hợp, nên gõ chữ cái trước rồi gõ <b>dấu thanh ở cuối từ</b>.</p><div class="typing-guide-grid"><section><h4>TELEX</h4><div class="rules compact"><div><b>s / f / r / x / j</b><span>sắc / huyền / hỏi / ngã / nặng</span></div><div><b>aa · ee · oo</b><span>â · ê · ô</span></div><div><b>aw · ow · uw</b><span>ă · ơ · ư</span></div><div><b>dd</b><span>đ</span></div><div><b>z</b><span>xóa dấu đã đặt</span></div></div><div class="example"><strong>chiến thắng</strong><span>→</span><b>chieens thawngs</b></div><div class="example"><strong>nguyễn thưởng</strong><span>→</span><b>nguyeenx thuwowngr</b></div></section><section><h4>VNI</h4><div class="rules compact"><div><b>1 / 2 / 3 / 4 / 5</b><span>sắc / huyền / hỏi / ngã / nặng</span></div><div><b>6</b><span>mũ: â · ê · ô</span></div><div><b>7</b><span>móc: ơ · ư</span></div><div><b>8</b><span>trăng: ă</span></div><div><b>d9</b><span>đ</span></div><div><b>0</b><span>xóa dấu thanh</span></div></div><div class="example"><strong>chiến thắng</strong><span>→</span><b>chie6n1 tha8ng1</b></div><div class="example"><strong>nguyễn thưởng</strong><span>→</span><b>nguye6n4 thu7o7ng3</b></div></section></div><p class="fine"><b>Dấu câu là bắt buộc:</b> dấu phẩy, dấu chấm, dấu hỏi, dấu chấm than… phải gõ đúng như văn bản. Space cũng bắt buộc. Hướng dẫn ngón tay theo touch typing chuẩn: <b>F = vị trí nghỉ ngón trỏ trái</b>, <b>J = vị trí nghỉ ngón trỏ phải</b>. Khi cần gõ <b>G</b> thì ngón trỏ trái vươn từ F sang; khi cần gõ <b>H</b> thì ngón trỏ phải vươn từ J sang. Space dùng ngón cái.</p></div></div>
+  <!-- ABOUT & CREDITS MODAL (INSPIRED BY ADAM-CV STUDIO) -->
+  <div id="creditsModal" class="modal"><div class="modal-card glass about-modal-card">
+    <button class="close" data-close>×</button>
+    <div class="about-modal-head">
+      <small>ADAM ECOSYSTEM · CÂU CHUYỆN SẢN PHẨM <span class="app-version-pill app-version-target">v10.1.0</span></small>
+      <h2>About Adam TypeSlayer</h2>
+    </div>
+
+    <div class="about-scroll">
+      <div class="about-hero">
+        <div class="about-avatar-ring">
+          <img src="assets/adam-logo.webp" alt="Adam Logo" onerror="this.src='assets/adam-logo.png'">
+        </div>
+        <h3>Adam TypeSlayer</h3>
+        <p class="about-subtitle">Professional Touch-Typing RPG & Vietnamese Language Adventure · Developed by Adam (Hoàng Tuấn Vương)</p>
+        <div class="about-social-links">
+          <a href="https://www.facebook.com/tuanvuonghoang" target="_blank" rel="noopener noreferrer" class="social-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Hoàng Tuấn Vương ↗
+          </a>
+          <a href="https://www.facebook.com/groups/931272648865049" target="_blank" rel="noopener noreferrer" class="social-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            Cộng đồng học tập ↗
+          </a>
+        </div>
+      </div>
+
+      <article class="about-card about-card-blue">
+        <h4>✨ Hệ sinh thái & Câu chuyện phía sau Adam TypeSlayer</h4>
+        <p><strong>Adam TypeSlayer</strong> là tựa game nhập vai luyện gõ tiếng Việt nằm trong hệ sinh thái ứng dụng sáng tạo của <strong>Adam (Hoàng Tuấn Vương)</strong> (cùng với các sản phẩm nổi bật như <em>Adam-Flow, Adam-CV, Adam Social Desk, Adam Inbox, Adam MoneyGame, Adam-StickMan, adam-tts, OpenMontage, Hypervideo, Adam Map, Adam Group...</em>), được xây dựng nhằm mang đến một phương pháp rèn luyện kỹ năng gõ phím 10 ngón (Touch Typing) chuẩn mực, cuốn hút và trực quan thông qua lối chơi hành động chặt chém diệt Boss.</p>
+        <p>Người chơi vừa rèn luyện phản xạ bàn phím chuẩn công thái học (Home Row A-S-D-F / J-K-L-;), vừa tiếp thu kho tàng văn học phong phú từ ca dao, tục ngữ đến các bài học ngụ ngôn và danh ngôn sống đẹp.</p>
+        <div class="about-eco-grid">
+          <span class="eco-pill">🚀 Adam-Flow</span>
+          <span class="eco-pill">📄 Adam-CV</span>
+          <span class="eco-pill">💬 Adam Social Desk</span>
+          <span class="eco-pill">📬 Adam Inbox</span>
+          <span class="eco-pill">💰 Adam MoneyGame</span>
+          <span class="eco-pill">🏃 Adam-StickMan</span>
+          <span class="eco-pill">🎙️ adam-tts</span>
+          <span class="eco-pill">🎬 OpenMontage</span>
+          <span class="eco-pill">🎥 Hypervideo</span>
+          <span class="eco-pill">🗺️ Adam Map</span>
+          <span class="eco-pill">👥 Adam Group</span>
+          <span class="eco-pill eco-more">✨ Và nhiều ứng dụng khác…</span>
+        </div>
+      </article>
+
+      <article class="about-card about-card-green">
+        <h4>💖 Miễn phí · Riêng tư · Local-First</h4>
+        <ul>
+          <li>Hoàn toàn miễn phí, không quảng cáo, không theo dõi và không thu thập bất kỳ dữ liệu cá nhân nào.</li>
+          <li>Đóng gói 100% tài nguyên và âm thanh cục bộ, hoạt động mượt mà offline không cần mạng.</li>
+          <li>Tự động ghi nhận thành tích, độ chính xác (Accuracy), tốc độ gõ (WPM) và kỷ lục cá nhân trực tiếp trên trình duyệt.</li>
+        </ul>
+      </article>
+
+      <article class="about-card">
+        <h4>⚡ Năng lực & Công nghệ của Game</h4>
+        <div class="about-category-grid">
+          <div class="about-category" style="border-left-color: #60a5fa">
+            <strong style="color: #60a5fa">Bộ gõ & Ngôn ngữ</strong>
+            <div class="tag-cloud">
+              <span>TELEX</span><span>VNI</span><span>DUAL_HYBRID_IME</span><span>100%_LOCKSTEP</span><span>CURATED_STORIES</span><span>PROVERBS</span>
+            </div>
+          </div>
+          <div class="about-category" style="border-left-color: #c084fc">
+            <strong style="color: #c084fc">Công thái học & Bàn tay</strong>
+            <div class="tag-cloud">
+              <span>10_FINGERS</span><span>HOME_ROW_ANCHORS</span><span>3D_HANDS</span><span>BEACON_POINTER</span><span>LIVE_READOUT</span>
+            </div>
+          </div>
+          <div class="about-category" style="border-left-color: #fbbf24">
+            <strong style="color: #fbbf24">Chiến đấu & Nâng cấp RPG</strong>
+            <div class="tag-cloud">
+              <span>3_HEROES</span><span>3_BOSSES</span><span>ACTIVE_SKILLS_Q_E_R</span><span>ROGUELIKE_PERKS</span><span>3D_CRIT_EFFECTS</span>
+            </div>
+          </div>
+          <div class="about-category" style="border-left-color: #34d399">
+            <strong style="color: #34d399">Âm thanh & Trải nghiệm</strong>
+            <div class="tag-cloud">
+              <span>AUDIO_POOL</span><span>CUSTOM_PLAYLIST</span><span>FOLDER_UPLOAD</span><span>DYNAMIC_DANGER_TEMPO</span><span>SFX_FEEDBACK</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="about-card about-card-red">
+        <h4>🛡️ Nguyên tắc Local-First & An Toàn Dữ Liệu</h4>
+        <p>Toàn bộ cơ chế phân tích cú pháp ký tự, tính toán chỉ số WPM/Accuracy và hiệu ứng đồ họa diễn ra 100% trên thiết bị của bạn. Game không gửi dữ liệu ra bên ngoài, đảm bảo an toàn tuyệt đối và tốc độ phản hồi 0ms.</p>
+      </article>
+
+      <article class="about-card">
+        <h4>💻 Technology Stack</h4>
+        <p class="about-tech">HTML5 Canvas · Vanilla JS ES6+ · Midnight Sapphire CSS · Web Audio API · LocalStorage</p>
+      </article>
+
+      <footer class="about-footer-info">
+        <p>Type Slayer VN được phát triển với tinh thần sáng tạo, tối giản và tôn vinh vẻ đẹp của tiếng Việt.</p>
+        <p>© 2026 Type Slayer VN. Designed and built with passion by Hoàng Tuấn Vương (Adam Wang).</p>
+      </footer>
+    </div>
+  </div></div>
+  <!-- DEV MODE / QA TEST DOCK -->
+  <div id="devPanel" class="dev-panel glass">
+    <div class="dev-header">
+      <div class="dev-header-left">
+        <span class="dev-title">⚡ DEV MODE</span>
+        <span id="devMiniBotBadge" class="dev-mini-badge" style="display: none;">🤖 BOT ON</span>
+      </div>
+      <div class="dev-header-actions">
+        <button id="devMinimizeBtn" class="dev-header-btn" onclick="devToggleMinimize(event)" type="button" title="Thu nhỏ / Mở rộng bảng Dev (Đẹp mắt để quay video màn hình)">🗕</button>
+        <button id="devCloseBtn" class="dev-header-btn dev-close-btn" type="button" title="Đóng bảng Dev (F9)">×</button>
+      </div>
+    </div>
+
+    <!-- QUICK MINI TOOLBAR SHOWN WHEN MINIMIZED -->
+    <div id="devMiniToolbar" class="dev-mini-toolbar" style="display: none;">
+      <button id="devMiniAutoBotBtn" class="dev-btn primary mini" onclick="devToggleAutoBot(event)" type="button" title="Bật/Tắt Bot tự gõ">🤖 Bot</button>
+      <button id="devMiniKillBossBtn" class="dev-btn danger mini" onclick="devInstantKillBoss(event)" type="button" title="Diệt Boss (F8)">💀 Boss</button>
+      <button id="devMiniGodBtn" class="dev-btn success mini" onclick="devToggleGodMode(event)" type="button" title="Bất tử máu">💖 God</button>
+      <button id="devMiniExpandBtn" class="dev-btn gold mini" onclick="devToggleMinimize(event)" type="button" title="Mở rộng bảng Dev">⤢ Mở</button>
+    </div>
+
+    <div id="devFullBody" class="dev-full-body">
+      <!-- STATS DASHBOARD -->
+      <div class="dev-section-title">📊 THỐNG KÊ KHO VĂN BẢN (TỔNG: <b id="devStatTotal">273</b> BÀI)</div>
+      <div class="dev-stats-grid">
+        <div class="dev-stat-chip">🌿 Từ vựng: <b id="devStatWords">172</b></div>
+        <div class="dev-stat-chip">📜 Tục ngữ: <b id="devStatProverbs">50</b></div>
+        <div class="dev-stat-chip">✨ Danh ngôn: <b id="devStatInspiring">26</b></div>
+        <div class="dev-stat-chip">📖 Ngụ ngôn: <b id="devStatStories">15</b></div>
+        <div class="dev-stat-chip">📜 Văn bản dài: <b id="devStatLong">10</b></div>
+        <div class="dev-stat-chip">🖼️ Nền test: <b id="devStatBgs">24</b></div>
+      </div>
+
+      <!-- BACKGROUND PRESET SELECTOR (24 THEMES) -->
+      <div class="dev-section-title">🖼️ ĐỔI NỀN MÀN HÌNH (24 NỀN & HIỆU ỨNG ĐỘNG)</div>
+      <div class="dev-inspector-box">
+        <select id="devBgSelect" class="dev-select">
+          <option value="cloud_azure">☁️ 1. Đảo Mây Khởi Đầu (Azure Mist & Nắng)</option>
+          <option value="crystal_neon">💎 2. Hang Pha Lê (Crystal Sparkles)</option>
+          <option value="void_abyss">🌌 3. Hư Không Huyền Ảo (Void Dust)</option>
+          <option value="volcano_magma">🌋 4. Hỏa Diệm Sơn (Tro Núi Lửa & Tàn Than)</option>
+          <option value="mystic_forest">🌲 5. Rừng Thiêng Hắc Ám (Đom Đóm Lục Bảo)</option>
+          <option value="storm_arena">⚡ 6. Đấu Trường Lôi Đình (Sấm Sét & Tia Điện)</option>
+          <option value="frost_tundra">❄️ 7. Băng Đảo Bắc Cực (Băng Tuyết Rơi)</option>
+          <option value="ocean_atlantis">🌊 8. Thủy Cung Atlantis (Bọt Khí Đại Dương)</option>
+          <option value="sakura_drift">🌸 9. Vườn Đào Tiên Cảnh (Hoa Anh Đào Rơi)</option>
+          <option value="autumn_leaves">🍂 10. Rừng Thu Lá Vàng (Lá Phong Rơi)</option>
+          <option value="blood_moon">🩸 11. Huyết Nguyệt Ma Vực (Sương Đỏ Tà Thuật)</option>
+          <option value="cyber_matrix">🔮 12. Ma Trận Số Hóa (Neon Cyber Grid)</option>
+          <option value="golden_sanctuary">👑 13. Thánh Điện Hoàng Kim (Hào Quang Mặt Trời)</option>
+          <option value="cosmic_asteroids">🪐 14. Vành Đai Thiên Thạch (Sao Băng Lướt)</option>
+          <option value="emerald_meadow">🌿 15. Vườn Địa Đàng (Bào Tử Phấn Hoa)</option>
+          <option value="bioluminescent_coral">🪸 16. Rạn San Hô Dạ Quang (Sinh Vật Biển Đêm)</option>
+          <option value="golden_desert">🏜️ 17. Hoang Mạc Cát Vàng (Bụi Cát Hoàng Hôn)</option>
+          <option value="gothic_castle">🏰 18. Lâu Đài Ma Cà Rồng (Bóng Ma & Dơi Đêm)</option>
+          <option value="toxic_lab">🧪 19. Đầm Lầy Độc Dược (Bong Bóng Axit)</option>
+          <option value="milky_way">🌌 20. Dải Ngân Hà Vô Cực (Tinh Vân Xoáy 3D)</option>
+          <option value="torii_sunset">⛩️ 21. Cổng Trời Thần Đạo (Hoàng Hôn Ánh Dương)</option>
+          <option value="ashen_battlefield">🪓 22. Chiến Trường Tro Tàn (Tro Than Rơi)</option>
+          <option value="fireworks_carnival">🎆 23. Lễ Hội Pháo Hoa (Hoa Lửa Lấp Lánh)</option>
+          <option value="minimal_oled">🌑 24. Bóng Đêm OLED 0 KB (Dark Minimalist)</option>
+        </select>
+        <div class="dev-nav-row">
+          <button id="devPrevBgBtn" class="dev-btn gold dev-nav-btn" onclick="devPrevBg(event)" type="button" title="Chuyển sang nền trước đó">⏮️ Nền Trước</button>
+          <span id="devBgPos" class="dev-pos-badge">1 / 24</span>
+          <button id="devNextBgBtn" class="dev-btn gold dev-nav-btn" onclick="devNextBg(event)" type="button" title="Chuyển sang nền tiếp theo">Nền Sau ⏭️</button>
+        </div>
+      </div>
+
+      <!-- SEQUENTIAL PROMPT INSPECTOR -->
+      <div class="dev-section-title">🔍 DUYỆT TỪNG CÂU LIÊN TỤC</div>
+      <div class="dev-inspector-box">
+        <select id="devCategorySelect" class="dev-select">
+          <option value="all">🌟 Toàn bộ kho (273 bài gõ)</option>
+          <option value="words">🌿 Từ & Cụm từ vựng (172 mục)</option>
+          <option value="proverbs">📜 Ca dao & Tục ngữ (50 câu)</option>
+          <option value="inspiring">✨ Truyền cảm hứng (26 câu)</option>
+          <option value="stories">📖 Truyện ngụ ngôn (15 đoạn)</option>
+          <option value="long">📜 Văn bản dài Level cuối (10 bài)</option>
+        </select>
+        <div class="dev-nav-row">
+          <button id="devPrevPromptBtn" class="dev-btn gold dev-nav-btn" onclick="devPrevPrompt(event)" type="button" title="Lùi về câu trước (Phím [ hoặc Shift+F7)">⏮️ [ Trước</button>
+          <span id="devPromptPos" class="dev-pos-badge">1 / 273</span>
+          <button id="devNextPromptBtn" class="dev-btn gold dev-nav-btn" onclick="devNextPrompt(event)" type="button" title="Tiến đến câu kế tiếp (Phím ] hoặc F7)">Sau ] ⏭️</button>
+        </div>
+        <div class="dev-prompt-slider-row">
+          <input type="range" id="devPromptSlider" class="dev-prompt-slider" min="1" max="273" value="1" title="Kéo thanh trượt để lật nhanh bài gõ bất kỳ">
+        </div>
+        <div id="devPromptPreview" class="dev-preview-box">Đang tải dữ liệu bài gõ...</div>
+        <button id="devAllPromptsBtn" class="dev-btn purple" onclick="showAllPromptsModal(event)" type="button" style="width: 100%; margin-top: 2px;" title="Mở danh sách toàn bộ 273 câu để tra cứu và chọn">📖 Bảng Danh Sách 273 Bài Gõ</button>
+      </div>
+
+      <!-- QUICK QA COMBAT ACTIONS -->
+      <div class="dev-section-title">⚔️ ĐIỀU KHIỂN CHIẾN ĐẤU & THẺ THƯỞNG</div>
+      <div class="dev-actions-grid">
+        <button id="devKillBossBtn" class="dev-btn danger" onclick="devInstantKillBoss(event)" type="button" title="Hạ gục Boss hiện tại ngay lập tức (F8)">💀 Diệt Boss (F8)</button>
+        <button id="devAutoBotBtn" class="dev-btn primary" onclick="devToggleAutoBot(event)" type="button" title="Bật/Tắt Bot tự gõ tự động liên tục & Tự chọn thẻ nâng cấp (F6)">🤖 Auto-Bot (F6)</button>
+        <button id="devAutoWordBtn" class="dev-btn gold" onclick="devAutoTypeWord(event)" type="button" title="Tự động gõ xong 1 từ hiện tại">⚡ Gõ 1 từ</button>
+        <button id="devGodModeBtn" class="dev-btn success" onclick="devToggleGodMode(event)" type="button" title="Khóa máu 100% không bao giờ chết">💖 Bất tử (God)</button>
+        <button id="devUpgradesBtn" class="dev-btn purple" onclick="devOpenUpgrades(event)" type="button" title="Mở bảng chọn 3 thẻ nâng cấp Roguelike ngẫu nhiên">🎴 Chọn 3 Thẻ (Game)</button>
+        <button id="devAllCardsBtn" class="dev-btn gold" onclick="showAllCardsModal(event)" type="button" title="Hiển thị toàn bộ tất cả 48 thẻ nâng cấp trong game để kiểm tra">👑 Xem Tất Cả 48 Thẻ</button>
+      </div>
+
+      <!-- AUTO-BOT SPEED SELECTOR -->
+      <div class="dev-bot-speed-row">
+        <span class="dev-bot-speed-label">⏱️ Tốc độ Auto-Bot:</span>
+        <div class="dev-bot-speed-group">
+          <button id="devBotSpeedNormalBtn" class="dev-bot-speed-btn active" onclick="devSetBotSpeed('normal', event)" type="button" title="Tốc độ tự nhiên như người gõ (~55 WPM, 240ms/ký tự) để kiểm tra âm thanh & hiệu ứng">🚶‍♂️ Bình thường (~55 WPM)</button>
+          <button id="devBotSpeedFastBtn" class="dev-bot-speed-btn" onclick="devSetBotSpeed('fast', event)" type="button" title="Tốc độ máy siêu nhanh (~250 WPM, 45ms/ký tự) để kiểm tra vượt ải cấp tốc">⚡ Siêu Tốc (~250 WPM)</button>
+        </div>
+      </div>
+
+      <!-- JUMP TO LEVEL -->
+      <div class="dev-jump-row">
+        <span>Chuyển Level / Boss:</span>
+        <select id="devRoundSelect" class="dev-select">
+          <option value="1">Level 1 · Vua Slime</option>
+          <option value="2">Level 2 · Goblin Đao Phủ</option>
+          <option value="3">Level 3 · Lợn Rừng Lưng Gai</option>
+          <option value="4">Level 4 · Cây Quỷ Cổ Thụ</option>
+          <option value="5">Level 5 · Golem Hoàng Nham</option>
+          <option value="6">Level 6 · Nhện Chúa Độc Dược</option>
+          <option value="7">Level 7 · Ác Ma Lửa Đỏ</option>
+          <option value="8">Level 8 · Pháp Sư Hắc Ám (Văn Bản Dài)</option>
+          <option value="9">Level 9 · Rắn Khổng Lồ Cửu Đầu (Văn Bản Dài)</option>
+          <option value="10">Level 10 · Hắc Long Hư Không (Trùm Cuối)</option>
+        </select>
+        <button id="devJumpBtn" class="dev-jump-btn">Nhảy màn ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL PROMPTS INSPECTOR MODAL -->
+  <div id="allPromptsModal" class="modal glass-modal all-prompts-modal">
+    <div class="modal-box all-prompts-box glass">
+      <div class="all-cards-header">
+        <div class="all-cards-title-col">
+          <span class="all-cards-badge">📚 TOÀN BỘ KHO BÀI GÕ TIẾNG VIỆT (273 BÀI)</span>
+          <h2>Bảng Tra Cứu & Chọn Bài Gõ</h2>
+          <p>Tìm kiếm nhanh và nhấp chọn bất kỳ bài gõ nào để nạp trực tiếp vào sàn đấu hoặc xem nội dung chi tiết.</p>
+        </div>
+        <button id="closeAllPromptsModal" class="modal-close-btn" onclick="closeAllPromptsModal(event)" title="Đóng bảng bài gõ (Esc)">×</button>
+      </div>
+
+      <div class="all-prompts-search-row">
+        <input type="text" id="allPromptsSearch" class="all-prompts-search-input" placeholder="🔍 Gõ từ khóa để tìm kiếm nhanh trong 273 bài gõ..." autocomplete="off">
+        <span id="allPromptsCountBadge" class="all-prompts-count-badge">273 bài</span>
+      </div>
+
+      <div class="all-cards-filters" id="allPromptsFilterGroup">
+        <button class="all-prompts-filter-btn active" data-prompt-filter="all">Tất cả (273)</button>
+        <button class="all-prompts-filter-btn" data-prompt-filter="words">🌿 Từ vựng (172)</button>
+        <button class="all-prompts-filter-btn" data-prompt-filter="proverbs">📜 Tục ngữ (50)</button>
+        <button class="all-prompts-filter-btn" data-prompt-filter="inspiring">✨ Danh ngôn (26)</button>
+        <button class="all-prompts-filter-btn" data-prompt-filter="stories">📖 Ngụ ngôn (15)</button>
+        <button class="all-prompts-filter-btn" data-prompt-filter="long">📜 Văn bản dài (10)</button>
+      </div>
+
+      <div id="allPromptsGrid" class="all-prompts-grid"></div>
+    </div>
+  </div>
+
+  <!-- ALL BONUS CARDS INSPECTOR MODAL -->
+  <div id="allCardsModal" class="modal glass-modal all-cards-modal">
+    <div class="modal-box all-cards-box glass">
+      <div class="all-cards-header">
+        <div class="all-cards-title-col">
+          <span class="all-cards-badge">🎴 TOÀN BỘ KHO NÂNG CẤP ROGUELIKE (48 THẺ)</span>
+          <h2>Bảng Kiểm Tra Toàn Bộ Thẻ Thưởng</h2>
+          <p>Xem trước và thử nghiệm trực tiếp toàn bộ 48 thẻ bài: Thường (30 thẻ Bạc) · Hiếm (7 thẻ Lam) · Sử Thi (6 thẻ Tím Hào Quang) · Huyền Thoại (5 thẻ Vàng Kim Lấp Lánh).</p>
+        </div>
+        <button id="closeAllCardsModal" class="modal-close-btn" title="Đóng bảng thẻ (Esc)">×</button>
+      </div>
+      <div class="all-cards-filters">
+        <button class="all-cards-filter-btn active" data-card-filter="all">Tất cả (48)</button>
+        <button class="all-cards-filter-btn" data-card-filter="common">⚔️ Thường (30)</button>
+        <button class="all-cards-filter-btn" data-card-filter="rare">💎 Hiếm (7)</button>
+        <button class="all-cards-filter-btn" data-card-filter="epic">🔮 Sử Thi (6)</button>
+        <button class="all-cards-filter-btn" data-card-filter="legendary">👑 Huyền Thoại (5)</button>
+      </div>
+      <div id="allCardsGrid" class="all-cards-grid"></div>
+    </div>
+  </div>
+
+  <!-- FLOATING CARD HOVER TOOLTIP -->
+  <div id="cardHoverTooltip" class="card-hover-tooltip glass"></div>
+
+  <!-- HIDDEN CUSTOM MUSIC INPUTS -->
+  <input id="musicFolderInput" type="file" webkitdirectory directory multiple style="display:none" />
+  <input id="musicFilesInput" type="file" multiple accept="audio/*,.mp3,.ogg,.wav,.m4a,.flac,.aac,.opus" style="display:none" />
+
+  <button id="devFloatingToggle" class="dev-floating-toggle" title="Bật/Tắt Dev Mode Kiểm Thử (F9)">
+    <span>⚡ DEV</span>
+  </button>
+</div>
+<script src="game.js?v=10.16.0"></script>
+</body>
+</html>
