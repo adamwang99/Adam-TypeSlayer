@@ -19,8 +19,8 @@
 | Phiên bản | Định dạng | Tải về trực tiếp | Cách chơi |
 | :--- | :---: | :---: | :--- |
 | **🚀 Windows Portable** *(Khuyên dùng)* | `.EXE` (~27MB) | **[⚡ TẢI VỀ BẢN PORTABLE (.EXE)](https://github.com/adamwang99/Adam-TypeSlayer/releases/download/v10.16.0/TypeSlayer_Portable.exe)** | Nhấp đúp mở ngay, không cần cài đặt |
+| **🌐 Chơi Online Trực Tiếp** | Web App | **[⚔️ CHƠI NGAY TRÊN TRÌNH DUYỆT (ONLINE)](https://adamwang99.github.io/Adam-TypeSlayer/)** | Chạy ngay trên mọi thiết bị không cần tải |
 | **📦 GitHub Releases** | Package | **[📦 Xem Chi Tiết Bản Phát Hành v10.16.0](https://github.com/adamwang99/Adam-TypeSlayer/releases/tag/v10.16.0)** | Tải từ trang Release chính thức |
-| **🌐 Web Trực Tiếp** | HTML5 | **[⚔️ Mở File index.html](index.html)** | Chạy ngay trên Chrome, Edge, Cốc Cốc |
 
 </div>
 
@@ -92,9 +92,9 @@ Sau mỗi chiến thắng vẻ vang, người chơi được lựa chọn 1 tron
 2. Nhấp đúp chuột vào file để mở và trải nghiệm game ngay lập tức trong cửa sổ riêng biệt $60\text{ FPS}$ (Không cần cài đặt bất kỳ phần mềm nào).
 3. Nhấn phím **F11** để bật/tắt chế độ Toàn Màn Hình.
 
-### Cách 2: Chơi Trực Tiếp Trên Trình Duyệt Web
-1. Mở file **`index.html`** bằng bất kỳ trình duyệt hiện đại nào (Google Chrome, Microsoft Edge, Brave, Cốc Cốc, Firefox).
-2. Chọn Kiểu gõ (Telex / VNI), nhập tên nhân vật, chọn Hiệp Sĩ yêu thích và bấm **⚔ VÀO GAME**.
+### Cách 2: Chơi Trực Tiếp Trên Trình Duyệt Web (Không Cần Tải)
+1. Truy cập trực tiếp liên kết: **[https://adamwang99.github.io/Adam-TypeSlayer/](https://adamwang99.github.io/Adam-TypeSlayer/)**
+2. Chọn Kiểu gõ (Telex / VNI), nhập tên nhân vật, chọn Hiệp Sĩ yêu thích và bấm **⚔ VÀO GAME**. Hoạt động mượt mà trên Chrome, Edge, Brave, Cốc Cốc, Firefox, Safari!
 
 ---
 
