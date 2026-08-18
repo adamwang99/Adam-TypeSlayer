@@ -153,7 +153,7 @@ Chúng tôi luôn **nhiệt liệt hoan nghênh và chào đón mọi ý tưởn
 * **Giấy phép**: Được phân phối theo giấy phép quốc tế **[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](LICENSE)**.
 * 🚫 **NGHIÊM CẤM THƯƠNG MẠI HÓA (NON-COMMERCIAL)**:
   * Tuyệt đối **không được phép bán lại**, đóng gói thương mại, thu phí người chơi hoặc chèn quảng cáo kiếm tiền dưới mọi hình thức.
-  * Chỉ được phép tải về, chia sẻ, sử dụng và phát triển cho **mục đích cá nhân, học tập, nghiên cứu và rèn luyện kỹ năng gõ phím phi lợi nhuận**.
+  * Chỉ được phép tải về, chia sẻ, sử dụng và phát triển cho **mục đích cá nhân, học tập, nghiên cứu và rèn luyện kỹ năng gõ phím phi lợi nhuận**. Dự án luôn **khuyến khích mọi đóng góp hoàn toàn miễn phí vì sự phát triển chung của cộng đồng**.
 
 <div align="center">
 
