@@ -4,11 +4,11 @@
 ### Đấu Trường Luyện Gõ Phím 10 Ngón RPG Diệt Boss Tiếng Việt
 **Trảm quái vô tận · 10 Boss Thần Thoại · 3 Lớp Nhân Vật · Bộ Gõ Telex & VNI Độc Lập**
 
-[![Phiên Bản](https://img.shields.io/badge/Phiên%20Bản-v10.16.0%20Final-gold?style=for-the-badge&logo=shield)](https://github.com/)
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0%20(Phi%20Thương%20Mại)-critical?style=for-the-badge&logo=creative-commons)](LICENSE)
-[![Nền Tảng](https://img.shields.io/badge/Nền%20Tảng-Windows%20|%20Web%20|%20Portable-blue?style=for-the-badge&logo=windows)](https://github.com/)
-[![Dung Lượng](https://img.shields.io/badge/Dung%20Lượng-27MB%20(1%20File%20EXE)-emerald?style=for-the-badge&logo=speedtest)](https://github.com/)
-[![Ngôn Ngữ](https://img.shields.io/badge/Ngôn%20Ngữ-Tiếng%20Việt%20100%25-red?style=for-the-badge&logo=vietnam)](https://github.com/)
+[![Phiên Bản](https://img.shields.io/badge/Phiên%20Bản-v10.16.0%20Final-gold?style=for-the-badge&logo=shield)](https://github.com/adamwang99/Adam-TypeSlayer)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0%20(Phi%20Thương%20Mại)-critical?style=for-the-badge&logo=creative-commons)](https://github.com/adamwang99/Adam-TypeSlayer/blob/main/LICENSE)
+[![Nền Tảng](https://img.shields.io/badge/Nền%20Tảng-Windows%20|%20Web%20|%20Portable-blue?style=for-the-badge&logo=windows)](https://github.com/adamwang99/Adam-TypeSlayer)
+[![Dung Lượng](https://img.shields.io/badge/Dung%20Lượng-27MB%20(1%20File%20EXE)-emerald?style=for-the-badge&logo=speedtest)](https://github.com/adamwang99/Adam-TypeSlayer/releases)
+[![Ngôn Ngữ](https://img.shields.io/badge/Ngôn%20Ngữ-Tiếng%20Việt%20100%25-red?style=for-the-badge&logo=vietnam)](https://github.com/adamwang99/Adam-TypeSlayer)
 
 ---
 
