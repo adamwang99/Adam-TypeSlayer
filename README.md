@@ -12,7 +12,15 @@
 
 ---
 
-![Adam TypeSlayer Banner](assets/readme_banner.png)
+![Adam TypeSlayer Masterpiece Banner](assets/adam_typeslayer_epic_banner.jpg)
+
+### 📥 TẢI VỀ & TRẢI NGHIỆM NGAY (DIRECT DOWNLOAD)
+
+| Phiên bản | Định dạng | Tải về trực tiếp | Cách chơi |
+| :--- | :---: | :---: | :--- |
+| **🚀 Windows Portable** *(Khuyên dùng)* | `.EXE` (~27MB) | **[⚡ TẢI VỀ BẢN PORTABLE (.EXE)](https://github.com/adamwang99/Adam-TypeSlayer/raw/main/TypeSlayer_Portable.exe)** | Nhấp đúp mở ngay, không cần cài đặt |
+| **📦 GitHub Releases** | Package | **[📦 Xem Bản Phát Hành Releases](https://github.com/adamwang99/Adam-TypeSlayer/releases)** | Tải từ trang Release chính thức |
+| **🌐 Web Trực Tiếp** | HTML5 | **[⚔️ Mở File index.html](index.html)** | Chạy ngay trên Chrome, Edge, Cốc Cốc |
 
 </div>
 
