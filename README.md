@@ -124,6 +124,29 @@ type_slayer_final_v9_14/
 
 ---
 
+## 🤝 HOAN NGHÊNH ĐÓNG GÓP & MỞ RỘNG DỰ ÁN (CONTRIBUTIONS)
+
+Chúng tôi luôn **nhiệt liệt hoan nghênh và chào đón mọi ý tưởng đóng góp từ cộng đồng** để cùng xây dựng **Adam Type Slayer** ngày càng phong phú, kịch tính và hấp dẫn hơn cho tất cả người chơi!
+
+### 💡 Các Lĩnh Vực Bạn Có Thể Đóng Góp:
+* 🏹 **Sáng tạo Lớp Nhân Vật Mới (New Heroes)**: Đề xuất hoặc vẽ thêm các class hiệp sĩ mới (*Cung Thủ / Archer, Đao Khách / Blade Master, Hiệp Sĩ Thánh / Paladin, Đạo Sĩ Triệu Hồi / Summoner...*) với bộ 3 tuyệt kỹ riêng biệt.
+* 👹 **Thiết kế Chúa Tể Boss Mới (New Bosses & Mechanics)**: Thêm các Boss độc lạ từ thần thoại hoặc văn hóa dân gian Việt Nam (*Sơn Tinh, Thủy Tinh, Hắc Long Ma Vực, Yêu Quái Ngàn Năm...*) kèm cơ chế chiêu thức và trạng thái Cuồng Nộ.
+* 🎴 **Ý tưởng Thẻ Bài Roguelike (New Roguelike Cards)**: Bổ sung các thẻ bài kỹ năng, hiệu ứng combo độc đáo (*phản đòn, hút máu diện rộng, đóng băng thời gian, bạo kích liên hoàn...*).
+* 📚 **Kho Từ Vựng & Thơ Ca Phong Phú (New Vocabulary Packs)**: Bổ sung bộ từ vựng chuyên ngành (*Lập trình viên IT, Y học, Lịch sử, Thành ngữ tục ngữ, Danh ngôn truyền cảm hứng, Truyện cổ tích, Tiếng Anh / Song ngữ...*).
+* 🎨 **Đồ Họa Pixel & Nhạc Nền Giao Hưởng (Art & Audio)**: Đóng góp hình nền cảnh quan, hiệu ứng hạt phép thuật và các bản nhạc nền RPG hùng tráng.
+
+### 🛠️ Cách Thức Tham Gia Đóng Góp (How to Contribute):
+1. **Fork** repository này về tài khoản GitHub của bạn.
+2. Tạo một nhánh tính năng mới (`git checkout -b feature/ten-tinh-nang-moi`).
+3. Thêm nhân vật, Boss, từ vựng hoặc tinh chỉnh mã nguồn.
+4. Tạo **Commit** rõ ràng (`git commit -m 'feat: them lop nhan vat Cung Thu'`).
+5. **Push** lên nhánh của bạn (`git push origin feature/ten-tinh-nang-moi`).
+6. Mở một **[Pull Request (PR)](https://github.com/adamwang99/Adam-TypeSlayer/pulls)** để cùng thảo luận và tích hợp vào bản cập nhật tiếp theo!
+
+> 💬 *Mọi ý kiến đóng góp, báo lỗi hoặc đề xuất ý tưởng mới, bạn có thể tạo ngay một **[GitHub Issue](https://github.com/adamwang99/Adam-TypeSlayer/issues)** để cùng thảo luận nhé!*
+
+---
+
 ## 📜 BẢN QUYỀN & GIẤY PHÉP (LICENSE)
 
 * **Tác giả**: Phát triển và thiết kế bởi **ADAM ECOSYSTEM**.
